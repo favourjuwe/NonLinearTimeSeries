@@ -1,0 +1,89 @@
+
+from imfractal import *
+
+import Image
+import time
+import matplotlib.pyplot as plt
+from pylab import *
+
+import os
+import sys
+sys.path.append('/home/rodrigo/imfractal/imfractal/Algorithm/')
+
+import qs3D
+
+def createFolders(dirs):
+
+    for f in dirs:
+        if not os.path.isdir(f): 
+            os.mkdir (f) 
+
+
+def do_test():
+
+
+
+    arr = [ "imfractal/Algorithm/qs3D", "imfractal/Algorithm/qs"]
+
+    for i in range(len(arr)):
+
+        command1 = "cython "+arr[i]+".pyx "
+        command2 = "gcc -c -fPIC -I/usr/include/python2.7/ "+arr[i]+".c"+" -o "+arr[i]+".o"
+        command3 = "gcc -shared "+arr[i]+".o -o "+arr[i]+".so"
+
+        print command1
+        os.system(command1)
+        print command2
+        os.system(command2)
+        print command3
+        os.system(command3)
+
+
+    print "Creating folder.."
+    createFolders(['exps/figs'])
+
+    # load array object file
+    res = np.load("mfss.npy")
+
+    patients = ["5c", "6b", "8b", "8c", "V12"]
+
+    # scans except xct
+    scans = ["M1", "M2", "01", "02", "03"]
+    
+
+    pp = 0
+    for p in patients:
+        ss = 0
+        for s in scans:
+            for i in range(1,26,2):
+                clf()
+                plt.figure(pp*len(patients)+ss*len(scans)+i+1)
+                plt.subplot(221)
+                plt.ylim(ymax = 3.6, ymin = 2.0)
+                #plt.title("XCT 5c_XtremeCTSlices")
+                plt.title(p + "-" + s + " - HRCT - VOI "+str(i))
+                plt.plot(res[pp][ss][i])
+
+                plt.subplot(222)
+                plt.ylim(ymax = 3.6, ymin = 2.0)
+                plt.title(p + " - XCT - VOI "+str(i))
+                plt.plot(res[pp][5][i])
+
+                plt.subplot(223)
+                plt.ylim(ymax = 3.6, ymin = 2.0)
+                
+                plt.title(p + "-" + s + " - HRCT - VOI "+ str(i+1))
+                plt.plot(res[pp][ss][i+1])
+
+                plt.subplot(224)
+                plt.ylim(ymax = 3.6, ymin = 2.0)
+                plt.title(p + " - XCT - VOI "+ str(i+1))
+                plt.plot(res[pp][5][i+1])
+
+                
+                savefig("exps/figs/"+p+s+"VOI"+str(i)+"-"+str(i+1)+".png")
+
+            ss = ss+1
+        pp = pp+1
+
+    
